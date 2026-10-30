@@ -1,0 +1,37 @@
+name: Crear APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Descomprimir el proyecto
+        run: unzip -q proyecto.zip -d app-src
+
+      - name: Instalar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Instalar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+      - name: Compilar el APK
+        working-directory: app-src
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Guardar el APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PoolMasterTrainer-APK
+          path: app-src/app/build/outputs/apk/debug/app-debug.apk
